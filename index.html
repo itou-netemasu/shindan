@@ -850,7 +850,7 @@
 
     const url = new URL(location.href);
     url.searchParams.set('type', typeId);
-    history.replaceState ? history.replaceState(null,'',url.toString()) : null;
+    window.history.replaceState(null, '', url.toString());
 
     document.getElementById('q-screen').classList.remove('active');
     document.getElementById('top-screen').classList.remove('active');
