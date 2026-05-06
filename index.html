@@ -352,6 +352,58 @@
       width: 100%;
     }
     .btn-record:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(56,142,60,0.38); }
+    .btn-list {
+      margin-top: 16px;
+      background: none;
+      border: 2px solid #b0bec5;
+      border-radius: 50px;
+      padding: 10px 28px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      color: #607d8b;
+      transition: background 0.15s;
+      display: block;
+      width: 100%;
+    }
+    .btn-list:hover { background: #eceff1; }
+    .type-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .type-list-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 16px 12px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .type-list-card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.13); }
+    .type-list-card .tl-emoji { font-size: 2.2rem; display: block; margin-bottom: 4px; }
+    .type-list-card .tl-name { font-size: 0.8rem; font-weight: 900; color: #333; }
+    .type-list-card .tl-catch { font-size: 0.72rem; color: #888; margin-top: 2px; }
+    .list-title { font-size: 1.3rem; font-weight: 900; text-align: center; margin-bottom: 16px; color: #555; }
+    .btn-back-list {
+      margin-top: 20px;
+      background: none;
+      border: 2px solid #e0e0e0;
+      border-radius: 50px;
+      padding: 10px 28px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      color: #9e9e9e;
+      transition: background 0.15s;
+      display: block;
+      width: 100%;
+    }
+    .btn-back-list:hover { background: #f5f5f5; }
     .btn-retry {
       margin-top: 12px;
       background: none;
@@ -457,6 +509,7 @@
       <button class="btn-start" onclick="startQuiz()">
         診断スタート 🐾
       </button>
+      <button class="btn-list" onclick="showTypeList()">🦁 タイプ一覧を見る</button>
       <div class="parade">🦁🐘🦊🐢🦋🐬🦅🐻🐇🦒</div>
     </div>
   </div>
@@ -539,6 +592,15 @@
         <button class="btn-record" onclick="recordResult()">📋 結果を記録する</button>
         <button class="btn-retry" onclick="showTop()">🔄 もう一度診断する</button>
       </div>
+    </div>
+  </div>
+
+  <!-- タイプ一覧 -->
+  <div id="list-screen" class="screen">
+    <div class="card">
+      <div class="list-title">🐾 アニマルタイプ一覧</div>
+      <div class="type-grid" id="type-grid"></div>
+      <button class="btn-back-list" onclick="showTop()">← TOPに戻る</button>
     </div>
   </div>
 
@@ -839,6 +901,31 @@
   }
 
   // ── 結果表示 ──
+  function showTypeList() {
+    const grid = document.getElementById('type-grid');
+    grid.innerHTML = '';
+    Object.entries(TYPES).forEach(([id, t]) => {
+      const card = document.createElement('div');
+      card.className = 'type-list-card';
+      card.innerHTML = `<span class="tl-emoji">${t.emoji}</span><div class="tl-name">${t.name}</div><div class="tl-catch">${t.catch}</div>`;
+      card.onclick = () => {
+        const partners = Object.entries(t.partners).map(([pid, desc]) => {
+          return `${TYPES[pid].emoji} ${TYPES[pid].name}`;
+        }).join('・');
+        document.getElementById('m-pair').textContent = t.emoji + ' ' + t.name;
+        document.getElementById('m-title').textContent = t.catch;
+        document.getElementById('m-desc').textContent =
+          t.desc + '\n\n【強み】\n' + t.strengths.join('／') +
+          '\n\n【ベストパートナー】\n' + partners;
+        document.getElementById('modal').classList.add('open');
+      };
+      grid.appendChild(card);
+    });
+    document.getElementById('top-screen').classList.remove('active');
+    document.getElementById('list-screen').classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
   function recordResult() {
     const t = TYPES[currentTypeId];
     if (!t) return;
@@ -891,6 +978,7 @@
     url.searchParams.delete('type');
     window.history.replaceState(null,'',url.toString());
     document.getElementById('result-screen').classList.remove('active');
+    document.getElementById('list-screen').classList.remove('active');
     document.getElementById('top-screen').classList.add('active');
     window.scrollTo(0, 0);
   }
